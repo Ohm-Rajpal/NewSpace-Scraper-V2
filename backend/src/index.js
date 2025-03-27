@@ -4,7 +4,7 @@ import cors from "cors";
 import axios from "axios";
 import OpenAI from "openai";
 import { clerkMiddleware, clerkClient, requireAuth, getAuth } from '@clerk/express';
-import {MongoClient, ServerApiVersion } from "mongodb"
+import { MongoClient, ServerApiVersion } from "mongodb"
 
 // initialize client variables
 const app = express()
@@ -96,10 +96,23 @@ async function parseData(inputData) {
     const jsonList = []
 
     for (const element of splitData) {
+        // check if all three values actually exist before passing into OpenAI API
+        const descriptionText = element.description || `The description is ${element.title}`
+        const qualificationsText = element.job_highlights && element.job_highlights[0]?.items 
+        ? element.job_highlights[0].items.toString() 
+        : `Infer the qualifications based on ${element.title}`;
+        const responsibilitiesText = element.job_highlights && element.job_highlights[2]?.items 
+        ? element.job_highlights[2].items.toString() 
+        : `Infer the responsibilities based on ${element.title}`;
+
         // need to process the description, qualifications, and responsibilities
-        const description = await analyzeData(element.description, "description")
-        const qualifications = await analyzeData(element.job_highlights[0].items.toString(), "qualifications")
-        const responsibilities = await analyzeData(element.job_highlights[2].items.toString(), "responsibilities")
+        const description = await analyzeData(descriptionText, "description")
+        const qualifications = await analyzeData(qualificationsText, "qualifications")
+        const responsibilities = await analyzeData(responsibilitiesText, "responsibilities")
+
+        // console.log(description)
+        // console.log(qualifications)
+        // console.log(responsibilities)
 
         const tempJSON = {
             "title": element.title,
@@ -133,13 +146,14 @@ app.get('/api/test', async (req, res) => {
         db = mongoClient.db("NewSpaceV2")
         const col = db.collection("jobs")
         const rawData = await getRawData()
+        // console.log(rawData)
         const formattedData = await parseData(rawData)  
+        // console.log(formattedData)
         const result = await col.insertMany(formattedData);
         console.log(`${result.insertedCount} document(s) were inserted`);
     } catch (err) {
         console.log(err.stack);
     }
-
     // redirect back to page
     res.redirect('/')
 })
@@ -165,7 +179,6 @@ app.get('/', (req, res) => {
 app.get('/protected', requireAuth(), (req, res) => {
     res.send('This is a protected route.')
 })  
-  
 
 // sanity
 app.listen(port, () => {
