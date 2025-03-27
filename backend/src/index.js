@@ -5,10 +5,12 @@ import axios from "axios";
 import OpenAI from "openai";
 import { clerkMiddleware, clerkClient, requireAuth, getAuth } from '@clerk/express';
 import { MongoClient, ServerApiVersion } from "mongodb"
+import NodeCache from "node-cache"
 
 // initialize client variables
 const app = express()
-const port = 3000                          
+const port = 3000                     
+const cache = new NodeCache()
 const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.5pxx9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 const openaiClient = new OpenAI({apiKey: process.env.OPENAI_API_KEY})
 const mongoClient = new MongoClient(uri, {
@@ -20,6 +22,7 @@ const mongoClient = new MongoClient(uri, {
 })
 
 let db
+let frontendData // stores data from database read, if empty then read the database and populate this value, otherwise simply return this value
 
 // middleware
 app.use(cors()); // communication with frontend
@@ -140,6 +143,42 @@ await run()
 
 // backend
 
+// read values from the database and send it to the frontend
+app.get('/api/read', async (req, res) => {
+    if (!frontendData) {
+        try {
+            console.log('Cache miss, reading from database')
+            db = mongoClient.db("NewSpaceV2")
+            const col = db.collection("jobs")
+            const cursor = col.find({})
+            const results = await cursor.toArray()
+            console.log(results)
+            // error handling if database is empty (ideally should not happen)
+            if (results.length === 0) {
+                console.log("Database is empty")
+                res.redirect('/')
+            } else {
+                cache.set('job_listings', results)
+                frontendData = cache.get('job_listings')
+                console.log(frontendData)
+                // redirect back to page
+                res.redirect('/')
+                // res.send(cache.get('job_listings'))
+            }  
+        } catch (err) {
+            console.log(err.stack);
+            // redirect back to page
+            res.redirect('/')
+        }
+    } else {
+        console.log("Cache hit!")
+        console.log(cache.get('job_listings'))
+        // redirect back to page
+        res.redirect('/')
+        // res.send(cache.get('job_listings'))
+    }
+})
+
 // testing endpoint (will need to be authenticated later)
 app.get('/api/test', async (req, res) => {
     try {
@@ -160,11 +199,13 @@ app.get('/api/test', async (req, res) => {
 
 app.get('/api/clear', async (req, res) => {
     try {
-        await mongoClient.connect()
-        const result = await mongoClient.db("NewSpaceV2").collection("jobs").deleteMany({});
+        db = mongoClient.db("NewSpaceV2")
+        const col = db.collection("jobs")
+        const result = await col.deleteMany({});
         console.log(`${result.deletedCount} document(s) were deleted.`);
     } catch (err) {
         console.log(err.stack);
+        res.redirect('/')
     }
     // redirect back to page
     res.redirect('/')
