@@ -162,8 +162,8 @@ app.get('/api/read', async (req, res) => {
                 frontendData = cache.get('job_listings')
                 console.log(frontendData)
                 // redirect back to page
-                res.redirect('/')
-                // res.send(cache.get('job_listings'))
+                // res.redirect('/')
+                res.send(cache.get('job_listings'))
             }  
         } catch (err) {
             console.log(err.stack);
@@ -174,8 +174,8 @@ app.get('/api/read', async (req, res) => {
         console.log("Cache hit!")
         console.log(cache.get('job_listings'))
         // redirect back to page
-        res.redirect('/')
-        // res.send(cache.get('job_listings'))
+        // res.redirect('/')
+        res.send(cache.get('job_listings'))
     }
 })
 
