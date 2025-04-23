@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   const dataExtraction = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/read');
+      const response = await axios.get('https://newspace-scraper-v2.onrender.com/api/read');
       return response.data;
     } catch (error) {
       console.error(error);
