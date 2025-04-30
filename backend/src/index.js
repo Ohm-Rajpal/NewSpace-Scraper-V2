@@ -203,6 +203,9 @@ app.get('/api/clear', async (req, res) => {
         const col = db.collection("jobs")
         const result = await col.deleteMany({});
         console.log(`${result.deletedCount} document(s) were deleted.`);
+        // delete the cache so that the frontend is updated properly
+        cache.del('job_listings')
+        frontendData = false
     } catch (err) {
         console.log(err.stack);
         res.redirect('/')
