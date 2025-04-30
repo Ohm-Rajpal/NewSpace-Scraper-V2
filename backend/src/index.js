@@ -39,7 +39,7 @@ async function getRawData() {
     const scrapedData = await axios.get('https://serpapi.com/search', {
         params: {
             engine: "google_jobs",
-            q: "aerospace+engineering+internships+summer+2025",
+            q: "engineering+internships+summer+2025",
             location: "United States",
             gl: "us",
             hl: "en",
@@ -94,7 +94,7 @@ async function analyzeData(inputData, promptType) {
 
 // parses data that was scraped and will upload it to MongoDB Atlas 
 async function parseData(inputData) {    
-    const splitData = inputData.slice(0, 4)
+    const splitData = inputData.sort(() => 0.5 - Math.random()).slice(0, 4)
     // AI analysis for for the description, qualifications, and responsibilities 
     const jsonList = []
 
@@ -185,9 +185,9 @@ app.get('/api/test', async (req, res) => {
         db = mongoClient.db("NewSpaceV2")
         const col = db.collection("jobs")
         const rawData = await getRawData()
-        // console.log(rawData)
+        console.log(rawData) // debugging
         const formattedData = await parseData(rawData)  
-        // console.log(formattedData)
+        console.log(formattedData) // debugging
         const result = await col.insertMany(formattedData);
         console.log(`${result.insertedCount} document(s) were inserted`);
     } catch (err) {

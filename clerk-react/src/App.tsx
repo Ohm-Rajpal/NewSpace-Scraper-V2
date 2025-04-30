@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 interface Job {
   title: string;
   company_name: string;
@@ -18,7 +20,7 @@ const App: React.FC = () => {
 
   const dataExtraction = async () => {
     try {
-      const response = await axios.get('https://newspace-scraper-v2.onrender.com/api/read');
+      const response = await axios.get(`${BASE_URL}/api/read`);
       return response.data;
     } catch (error) {
       console.error(error);
