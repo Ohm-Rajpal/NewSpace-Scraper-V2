@@ -124,7 +124,7 @@ async function parseData(inputData) {
             "description": description,
             "qualifications": qualifications,
             "responsibilities": responsibilities,
-            "url": element.job_link || element.share_link || element.link || "URL not provided"
+            "link": element.job_link || element.share_link || element.link || "URL not provided"
         }
         jsonList.push(tempJSON)
     }
