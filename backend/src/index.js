@@ -107,9 +107,6 @@ async function parseData(inputData) {
         const responsibilitiesText = element.job_highlights && element.job_highlights[2]?.items 
         ? element.job_highlights[2].items.toString() 
         : `Infer the responsibilities based on ${element.title}`;
-        
-        // url of job posting
-        const jobURL = element.share_link
 
         // need to process the description, qualifications, and responsibilities
         const description = await analyzeData(descriptionText, "description")
@@ -127,7 +124,7 @@ async function parseData(inputData) {
             "description": description,
             "qualifications": qualifications,
             "responsibilities": responsibilities,
-            "url": jobURL,
+            "url": element.job_link || element.share_link || element.link || "URL not provided"
         }
         jsonList.push(tempJSON)
     }
