@@ -109,7 +109,7 @@ async function parseData(inputData) {
         : `Infer the responsibilities based on ${element.title}`;
         
         // url of job posting
-        const jobURL = element.google_jobs_url
+        const jobURL = element.share_link
 
         // need to process the description, qualifications, and responsibilities
         const description = await analyzeData(descriptionText, "description")
