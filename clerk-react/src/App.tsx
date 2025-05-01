@@ -222,7 +222,7 @@ const App: React.FC = () => {
                     maxWidth: '400px', // Limit card width
                     width: '100%',
                   }}
-                  onClick={() => window.open(job.link || '#', '_blank')}
+                  onClick={() => window.open(job.link)}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)';
                   }}
