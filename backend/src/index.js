@@ -107,6 +107,9 @@ async function parseData(inputData) {
         const responsibilitiesText = element.job_highlights && element.job_highlights[2]?.items 
         ? element.job_highlights[2].items.toString() 
         : `Infer the responsibilities based on ${element.title}`;
+        
+        // url of job posting
+        const jobURL = element.google_jobs_url
 
         // need to process the description, qualifications, and responsibilities
         const description = await analyzeData(descriptionText, "description")
@@ -124,6 +127,7 @@ async function parseData(inputData) {
             "description": description,
             "qualifications": qualifications,
             "responsibilities": responsibilities,
+            "url": jobURL,
         }
         jsonList.push(tempJSON)
     }
